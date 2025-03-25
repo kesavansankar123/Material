@@ -174,7 +174,25 @@ app.get("/history", async (req, res) => {
 });
 
 
-
+app.get("/history/:id", async (req, res) => {
+  try {
+    const todos = await deletedHistory.findById(req.params.id);
+    if (!todos) {
+      return res.status(404).json({ message: "Material not found" });
+    }
+    const formattedTodos = todos.map(todo => ({
+      ...todo._doc, // Spread existing data
+      createdOn: new Date(todo.createdOn).toLocaleDateString("en-GB").replace(/\//g, "-"),
+      deletedOn: new Date(todo.deletedOn).toLocaleDateString("en-GB").replace(/\//g, "-")// Convert format
+    }));    
+    res.json({
+      data: formattedTodos
+      // createdOn: formattedDate.replace(/\//g, "-"), // Example of sending createdOn from the first item
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
 
 
 app.listen(PORT, () => {
