@@ -82,25 +82,26 @@ app.get("/material", async (req, res) => {
 
 
 
-
 app.get("/material/:id", async (req, res) => {
   try {
-    const todos = await Todo.findById(req.params.id);
-    if (!todos) {
+    const todo = await Todo.findById(req.params.id);
+
+    if (!todo) {
       return res.status(404).json({ message: "Material not found" });
     }
-    const formattedTodos = todos.map(todo => ({
+
+    // Format the createdOn date
+    const formattedTodo = {
       ...todo._doc, // Spread existing data
-      createdOn: new Date(todo.createdOn).toLocaleDateString("en-GB").replace(/\//g, "-") // Convert format
-    }));    
-    res.json({
-      data: formattedTodos
-      // createdOn: formattedDate.replace(/\//g, "-"), // Example of sending createdOn from the first item
-    });
+      createdOn: new Date(todo.createdOn).toLocaleDateString("en-GB").replace(/\//g, "-")
+    };
+
+    res.json({ data: formattedTodo });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+
 
 
 
@@ -173,22 +174,22 @@ app.get("/history", async (req, res) => {
   }
 });
 
-
 app.get("/history/:id", async (req, res) => {
   try {
-    const todos = await deletedHistory.findById(req.params.id);
-    if (!todos) {
+    const todo = await deletedHistory.findById(req.params.id);
+
+    if (!todo) {
       return res.status(404).json({ message: "Material not found" });
     }
-    const formattedTodos = todos.map(todo => ({
+
+    // Format the createdOn and deletedOn dates
+    const formattedTodo = {
       ...todo._doc, // Spread existing data
-      createdOn: new Date(todo.createdOn).toLocaleDateString("en-GB").replace(/\//g, "-"),
-      deletedOn: new Date(todo.deletedOn).toLocaleDateString("en-GB").replace(/\//g, "-")// Convert format
-    }));    
-    res.json({
-      data: formattedTodos
-      // createdOn: formattedDate.replace(/\//g, "-"), // Example of sending createdOn from the first item
-    });
+      createdOn: todo.createdOn ? new Date(todo.createdOn).toLocaleDateString("en-GB").replace(/\//g, "-") : null,
+      deletedOn: todo.deletedOn ? new Date(todo.deletedOn).toLocaleDateString("en-GB").replace(/\//g, "-") : null
+    };
+
+    res.json({ data: formattedTodo });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
