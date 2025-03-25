@@ -1,12 +1,18 @@
 // Backend - server.js
 const express = require("express");
 const Mongoose = require("mongoose");
-const cors = require("cors");
+// const cors = require("cors");
 const bodyParser = require("body-parser");
 const PORT = 3000;
 const app = express();
 app.use(express.json());
-app.use(cors());
+const cors = require("cors");
+
+app.use(cors({
+  origin: "*", // Allow requests from any origin (Use specific domain in production)
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allow these methods
+  allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
+}));
 // const url="mongodb://127.0.0.1:27017/login_apis"
 const url = 'mongodb+srv://gokul:sankar@mern.sqrvp1s.mongodb.net/?retryWrites=true&w=majority&appName=mern'
 
@@ -43,6 +49,7 @@ const DeletedMaterial = new mongoose.Schema({
   materialCategory: String,
   categoryDescription: String,
   completed: Boolean,
+  createdBy: { type: String, default: "Gokulsankar" }, // Reference to a user
   createdOn: { type: Date, default: Date.now },
   deletedOn: { type: Date, default: () => new Date() } // Ensure it's a Date object
 });
@@ -64,7 +71,7 @@ app.get('/', (req,
 // Routes
 app.get("/material", async (req, res) => {
   try {
-    const todos = await Todo.find();
+    const todos = await Todo.find().sort({ createdOn: -1 });
 
     // Format the createdOn date for each todo
     const formattedTodos = todos.map(todo => ({
@@ -141,6 +148,7 @@ app.delete("/material/:id", async (req, res) => {
       categoryDescription: todo.categoryDescription,
       completed: todo.completed,
       createdOn: todo.createdOn,
+      createdBy: todo.createdBy
     });
 
     await deleteMaterial.save(); // Save the deleted record
@@ -158,7 +166,7 @@ app.delete("/material/:id", async (req, res) => {
 
 app.get("/history", async (req, res) => {
   try {
-    const todos = await deletedHistory.find();
+    const todos = await deletedHistory.find().sort({ deletedOn: -1 });
 
     const formattedTodos = todos.map(todo => ({
       ...todo._doc, // Spread existing data
@@ -194,6 +202,24 @@ app.get("/history/:id", async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+
+
+
+app.delete("/history/:id", async (req, res) => {
+  try {
+    // Find the item to delete
+    const todo =     await deletedHistory.findByIdAndDelete(req.params.id);
+    if (!todo) {
+      return res.status(404).json({ message: "Material not found" });
+    }
+    res.json({ message: "Material History Deleted" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+
+
 
 
 app.listen(PORT, () => {
