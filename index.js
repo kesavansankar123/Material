@@ -89,9 +89,12 @@ app.get("/material/:id", async (req, res) => {
     if (!todos) {
       return res.status(404).json({ message: "Material not found" });
     }
-    // const formattedDate = new Date(todos.createdOn).toLocaleDateString("en-GB"); // DD/MM/YYYY format
+    const formattedTodos = todos.map(todo => ({
+      ...todo._doc, // Spread existing data
+      createdOn: new Date(todo.createdOn).toLocaleDateString("en-GB").replace(/\//g, "-") // Convert format
+    }));    
     res.json({
-      data: todos
+      data: formattedTodos
       // createdOn: formattedDate.replace(/\//g, "-"), // Example of sending createdOn from the first item
     });
   } catch (error) {
