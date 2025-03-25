@@ -1,18 +1,12 @@
 // Backend - server.js
 const express = require("express");
 const Mongoose = require("mongoose");
-// const cors = require("cors");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const PORT = 3000;
 const app = express();
 app.use(express.json());
-const cors = require("cors");
-
-app.use(cors({
-  origin: "*", // Allow requests from any origin (Use specific domain in production)
-  methods: ["GET", "POST", "PUT", "DELETE"], // Allow these methods
-  allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
-}));
+app.use(cors());
 // const url="mongodb://127.0.0.1:27017/login_apis"
 const url = 'mongodb+srv://gokul:sankar@mern.sqrvp1s.mongodb.net/?retryWrites=true&w=majority&appName=mern'
 
